@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'publications',
     'complaints', 
     'search',
+    'analytics',
 
 ]
 

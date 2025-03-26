@@ -175,4 +175,34 @@ class SentimentAnalysisView(APIView):
         if request.user.role != 'admin':
             return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
         
-        # Get average
+        # Get average sentiment score
+        avg_sentiment = Feedback.objects.exclude(sentiment_score=None).aggregate(Avg('sentiment_score'))
+        
+        # Get feedback with highest and lowest sentiment
+        highest_sentiment = Feedback.objects.exclude(sentiment_score=None).order_by('-sentiment_score')[:5]
+        lowest_sentiment = Feedback.objects.exclude(sentiment_score=None).order_by('sentiment_score')[:5]
+        
+        # Get sentiment distribution (example: count of positive, neutral, negative)
+        positive_count = Feedback.objects.filter(sentiment_score__gt=0.5).count()
+        neutral_count = Feedback.objects.filter(sentiment_score__gte=0.3, sentiment_score__lte=0.7).count()
+        negative_count = Feedback.objects.filter(sentiment_score__lt=0.3).count()
+        
+        # Prepare response data
+        data = {
+            'average_sentiment': avg_sentiment['sentiment_score__avg'],
+            'highest_sentiment': [
+                {'id': f.id, 'title': f.title, 'score': f.sentiment_score} 
+                for f in highest_sentiment
+            ],
+            'lowest_sentiment': [
+                {'id': f.id, 'title': f.title, 'score': f.sentiment_score} 
+                for f in lowest_sentiment
+            ],
+            'sentiment_distribution': {
+                'positive': positive_count,
+                'neutral': neutral_count,
+                'negative': negative_count
+            }
+        }
+        
+        return Response(data)
