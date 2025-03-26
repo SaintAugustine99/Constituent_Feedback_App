@@ -1,2 +1,2 @@
-# Constituent_Feedback_App
- An app to bind constituents and their delegated institutions
+Constituent Feedback Platform
+A web application enabling efficient communication between elected officials, government agencies, independent commissions, and the public. This platform allows for organized collection and analysis of constituent feedback, access to government documents, and improved public participation in governance.
