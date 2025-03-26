@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'accounts',
     'feedback',
     'publications',
+    'complaints', 
+    'search',
 
 ]
 
@@ -146,3 +148,10 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Maximum upload size (5MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880

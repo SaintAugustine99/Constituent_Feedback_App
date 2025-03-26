@@ -66,7 +66,7 @@ class Media(models.Model):
     """
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='media')
     file_type = models.CharField(max_length=50)
-    file_url = models.URLField()
+    file = models.FileField(upload_to='feedback_media/')  # Uploaded to media/feedback_media/
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

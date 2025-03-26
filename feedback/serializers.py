@@ -12,6 +12,7 @@ class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
         fields = ['id', 'file_type', 'file_url', 'created_at']
+        read_only_fields = ['created_at']
 
 class ResponseSerializer(serializers.ModelSerializer):
     responder = UserProfileSerializer(read_only=True)

@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 # feedback/views.py
-from rest_framework import status, permissions, generics
+from rest_framework import status, permissions, generics, parsers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -98,3 +98,56 @@ class ResponseCreateView(APIView):
             serializer.save(feedback=feedback, responder=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MediaUploadView(APIView):
+    """
+    API endpoint for uploading media files for feedback.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+    
+    def post(self, request, feedback_id):
+        feedback = get_object_or_404(Feedback, pk=feedback_id)
+        
+        # Check if user has permission to add media to this feedback
+        if request.user.role != 'admin' and feedback.user != request.user:
+            return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Handle file upload
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"detail": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate file type
+        file_type = request.data.get('file_type')
+        if not file_type or file_type not in dict(Media.MEDIA_TYPES).keys():
+            return Response({"detail": "Invalid file type"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create media object
+        media = Media.objects.create(
+            feedback=feedback,
+            file_type=file_type,
+            file=file_obj
+        )
+        
+        # Return serialized media
+        serializer = MediaSerializer(media)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class MediaDeleteView(APIView):
+    """
+    API endpoint for deleting media files.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def delete(self, request, media_id):
+        media = get_object_or_404(Media, pk=media_id)
+        feedback = media.feedback
+        
+        # Check if user has permission to delete this media
+        if request.user.role != 'admin' and feedback.user != request.user:
+            return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Delete the media
+        media.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
