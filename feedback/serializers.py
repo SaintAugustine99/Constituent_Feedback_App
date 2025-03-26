@@ -14,6 +14,15 @@ class MediaSerializer(serializers.ModelSerializer):
         fields = ['id', 'file_type', 'file_url', 'created_at']
         read_only_fields = ['created_at']
 
+        def get_file_url(self, obj):
+            if obj.file:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(obj.file.url)
+                return obj.file.url
+            return None
+
+
 class ResponseSerializer(serializers.ModelSerializer):
     responder = UserProfileSerializer(read_only=True)
     

@@ -31,6 +31,7 @@ def welcome_view(request):
 
 
 urlpatterns = [
+    path('', welcome_view, name='welcome'), 
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),
     path('api/', include('feedback.urls')),

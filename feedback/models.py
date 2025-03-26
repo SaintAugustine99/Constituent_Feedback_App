@@ -64,13 +64,20 @@ class Media(models.Model):
     """
     Attachments to feedback (photos, videos, audio).
     """
-    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='media')
-    file_type = models.CharField(max_length=50)
-    file = models.FileField(upload_to='feedback_media/')  # Uploaded to media/feedback_media/
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Media for {self.feedback.title}"
-    
-    class Meta:
-        verbose_name_plural = "Media"
+MEDIA_TYPES = [
+    ('image', 'Image'),
+    ('video', 'Video'),
+    ('audio', 'Audio'),
+    ('document', 'Document'),
+]
+
+feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='media')
+file_type = models.CharField(max_length=50)
+file = models.FileField(upload_to='feedback_media/')  # Uploaded to media/feedback_media/
+created_at = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+    return f"Media for {self.feedback.title}"
+
+class Meta:
+    verbose_name_plural = "Media"
