@@ -74,7 +74,7 @@ class Media(models.Model):
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='media')
     file_type = models.CharField(max_length=50, choices=MEDIA_TYPES)
     file = models.FileField(upload_to='feedback_media/')
-    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Media for {self.feedback.title}"
