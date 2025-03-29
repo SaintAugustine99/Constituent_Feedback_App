@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}File a Complaint | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'complaint_list' %}">Complaints</a></li>
+            <li class="breadcrumb-item active" aria-current="page">File a Complaint</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">File a Complaint</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Provide a clear, concise title for your complaint</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_commission_name" class="form-label">Commission Name</label>
+                        {{ form.commission_name }}
+                        {% if form.commission_name.errors %}
+                            <div class="text-danger">{{ form.commission_name.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Enter the name of the commission, department, or agency you are filing a complaint against</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Describe your complaint in detail, including relevant dates, locations, and individuals involved</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_documents" class="form-label">Supporting Documents (Optional)</label>
+                        {{ form.documents }}
+                        {% if form.documents.errors %}
+                            <div class="text-danger">{{ form.documents.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Upload any supporting documents, images, or files (PDF, JPG, PNG, DOC). You can select multiple files.</div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Please Note:</strong> Once submitted, your complaint will be reviewed by the appropriate commission. You will receive updates on this platform and may be contacted for additional information.
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'complaint_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add client-side validation for documents if needed
+    document.addEventListener('DOMContentLoaded', function() {
+        const documentsInput = document.getElementById('id_documents');
+        if (documentsInput) {
+            documentsInput.addEventListener('change', function() {
+                const files = this.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileSize = file.size / 1024 / 1024; // size in MB
+                    if (fileSize > 5) {
+                        alert('File size exceeds 5MB. Please choose a smaller file.');
+                        this.value = ''; // Clear the input
+                        break;
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

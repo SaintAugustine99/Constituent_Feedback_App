@@ -43,7 +43,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">{{ complaint.title }}</h5>
                             <span class="badge {% if complaint.status == 'submitted' %}bg-warning{% elif complaint.status == 'under_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
-                                {{ complaint.status|title|replace:"_":" " }}
+                                {{ complaint.status|title}}
                             </span>
                         </div>
                     </div>
