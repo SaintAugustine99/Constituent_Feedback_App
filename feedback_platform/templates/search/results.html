@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Search Results for "{{ query }}"</h2>
+    <p class="text-muted">Found {{ total_results }} results</p>
+    
+    <form method="get" action="{% url 'search' %}" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search again..." name="q" value="{{ query }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- Nav tabs for different result types -->
+<ul class="nav nav-tabs mb-4" id="searchResultsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
+            All Results <span class="badge bg-secondary ms-1">{{ total_results }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback" type="button" role="tab" aria-controls="feedback" aria-selected="false">
+            Feedback <span class="badge bg-secondary ms-1">{{ feedback_results|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="complaints-tab" data-bs-toggle="tab" data-bs-target="#complaints" type="button" role="tab" aria-controls="complaints" aria-selected="false">
+            Complaints <span class="badge bg-secondary ms-1">{{ complaint_results|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="gazettes-tab" data-bs-toggle="tab" data-bs-target="#gazettes" type="button" role="tab" aria-controls="gazettes" aria-selected="false">
+            Gazettes <span class="badge bg-secondary ms-1">{{ gazette_results|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
+            Reports <span class="badge bg-secondary ms-1">{{ report_results|length }}</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Tab content -->
+<div class="tab-content" id="searchResultsContent">
+    <!-- All Results Tab -->
+    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+        {% if total_results > 0 %}
+            <!-- Feedback Results -->
+            {% if feedback_results %}
+                <h4 class="mb-3">Feedback</h4>
+                <div class="list-group mb-4">
+                    {% for feedback in feedback_results %}
+                        <a href="{% url 'feedback_detail' feedback.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ feedback.title }}</h5>
+                                <span class="badge {% if feedback.status == 'pending' %}bg-warning{% elif feedback.status == 'under_review' %}bg-info{% elif feedback.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ feedback.status|title|replace:"_":" " }}
+                                </span>
+                            </div>
+                            <p class="mb-1">{{ feedback.description|truncatechars:150 }}</p>
+                            <small class="text-muted">Created: {{ feedback.created_at|date:"F j, Y" }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Complaint Results -->
+            {% if complaint_results %}
+                <h4 class="mb-3">Complaints</h4>
+                <div class="list-group mb-4">
+                    {% for complaint in complaint_results %}
+                        <a href="{% url 'complaint_detail' complaint.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ complaint.title }}</h5>
+                                <span class="badge {% if complaint.status == 'submitted' %}bg-warning{% elif complaint.status == 'under_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ complaint.status|title|replace:"_":" " }}
+                                </span>
+                            </div>
+                            <p class="mb-1">{{ complaint.description|truncatechars:150 }}</p>
+                            <small class="text-muted">Commission: {{ complaint.commission_name }} | Created: {{ complaint.created_at|date:"F j, Y" }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Gazette Results -->
+            {% if gazette_results %}
+                <h4 class="mb-3">Gazettes</h4>
+                <div class="list-group mb-4">
+                    {% for gazette in gazette_results %}
+                        <a href="{% url 'gazette_detail' gazette.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ gazette.title }}</h5>
+                                <span class="badge bg-info">{{ gazette.category.name }}</span>
+                            </div>
+                            <p class="mb-1">{{ gazette.description|truncatechars:150 }}</p>
+                            <small class="text-muted">Published: {{ gazette.publish_date|date:"F j, Y" }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Report Results -->
+            {% if report_results %}
+                <h4 class="mb-3">Reports</h4>
+                <div class="list-group mb-4">
+                    {% for report in report_results %}
+                        <a href="{% url 'report_detail' report.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ report.title }}</h5>
+                                <span class="badge bg-info">{{ report.category.name }}</span>
+                            </div>
+                            <p class="mb-1">{{ report.institution_name }}</p>
+                            <small class="text-muted">Year: {{ report.report_year }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <p class="lead">No results found for "{{ query }}"</p>
+                <p>Try using different keywords or check for spelling errors.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Individual Tabs for each result type -->
+    <div class="tab-pane fade" id="feedback" role="tabpanel" aria-labelledby="feedback-tab">
+        {% if feedback_results %}
+            <div class="list-group">
+                {% for feedback in feedback_results %}
+                    <a href="{% url 'feedback_detail' feedback.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ feedback.title }}</h5>
+                            <span class="badge {% if feedback.status == 'pending' %}bg-warning{% elif feedback.status == 'under_review' %}bg-info{% elif feedback.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ feedback.status|title|replace:"_":" " }}
+                            </span>
+                        </div>
+                        <p class="mb-1">{{ feedback.description|truncatechars:200 }}</p>
+                        <small class="text-muted">Created by: {{ feedback.user.first_name }} {{ feedback.user.last_name }} | {{ feedback.created_at|date:"F j, Y" }}</small>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
+                <p class="lead">No feedback found for "{{ query }}"</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="tab-pane fade" id="complaints" role="tabpanel" aria-labelledby="complaints-tab">
+        {% if complaint_results %}
+            <div class="list-group">
+                {% for complaint in complaint_results %}
+                    <a href="{% url 'complaint_detail' complaint.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ complaint.title }}</h5>
+                            <span class="badge {% if complaint.status == 'submitted' %}bg-warning{% elif complaint.status == 'under_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ complaint.status|title|replace:"_":" " }}
+                            </span>
+                        </div>
+                        <p class="mb-1">{{ complaint.description|truncatechars:200 }}</p>
+                        <small class="text-muted">Commission: {{ complaint.commission_name }} | Created: {{ complaint.created_at|date:"F j, Y" }}</small>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                <p class="lead">No complaints found for "{{ query }}"</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="tab-pane fade" id="gazettes" role="tabpanel" aria-labelledby="gazettes-tab">
+        {% if gazette_results %}
+            <div class="list-group">
+                {% for gazette in gazette_results %}
+                    <a href="{% url 'gazette_detail' gazette.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ gazette.title }}</h5>
+                            <span class="badge bg-info">{{ gazette.category.name }}</span>
+                        </div>
+                        <p class="mb-1">{{ gazette.description|truncatechars:200 }}</p>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Published: {{ gazette.publish_date|date:"F j, Y" }}</small>
+                            <a href="{{ gazette.document_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="fas fa-file-pdf"></i> View Document
+                            </a>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                <p class="lead">No gazettes found for "{{ query }}"</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+        {% if report_results %}
+            <div class="list-group">
+                {% for report in report_results %}
+                    <a href="{% url 'report_detail' report.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ report.title }}</h5>
+                            <span class="badge bg-info">{{ report.category.name }}</span>
+                        </div>
+                        <p class="mb-1">Institution: {{ report.institution_name }}</p>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Year: {{ report.report_year }}</small>
+                            <a href="{{ report.document_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="fas fa-file-pdf"></i> View Document
+                            </a>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+                <p class="lead">No reports found for "{{ query }}"</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

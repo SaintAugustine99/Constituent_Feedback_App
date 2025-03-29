@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}File a Complaint | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'complaint_list' %}">Complaints</a></li>
+            <li class="breadcrumb-item active" aria-current="page">File a Complaint</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">File a Formal Complaint</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <p><strong>Note:</strong> A formal complaint is different from general feedback. Use this form to submit a complaint to an official ombudsman or commission for formal review and resolution.</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Complaint Title</label>
+                        {{ form.title }}
+                        <div class="form-text">Provide a clear, concise title for your complaint</div>
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_commission_name" class="form-label">Commission or Ombudsman Name</label>
+                        {{ form.commission_name }}
+                        <div class="form-text">The name of the official body to which this complaint is directed</div>
+                        {% if form.commission_name.errors %}
+                            <div class="text-danger">{{ form.commission_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        <div class="form-text">Provide a detailed description of your complaint</div>
+                        {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'complaint_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

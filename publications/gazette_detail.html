@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ gazette.title }} | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gazette_list' %}">Gazettes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ gazette.title }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ gazette.title }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <p><strong>Category:</strong> {{ gazette.category.name }}</p>
+                <p><strong>Published:</strong> {{ gazette.publish_date|date:"F j, Y" }}</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ gazette.document_url }}" class="btn btn-success" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i> View Document
+                </a>
+            </div>
+        </div>
+        
+        <div class="description-box p-3 bg-light rounded mb-4">
+            <h5>Description</h5>
+            <p>{{ gazette.description|linebreaks }}</p>
+        </div>
+    </div>
+    <div class="card-footer">
+        {% if user.role == 'admin' %}
+            <a href="{% url 'edit_gazette' gazette.id %}" class="btn btn-secondary">
+                <i class="fas fa-edit me-2"></i> Edit
+            </a>
+        {% endif %}
+        
+        <a href="{% url 'gazette_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i> Back to List
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | Constituent Feedback Platform{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+<style>
+    .stats-card {
+        transition: transform 0.3s;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    .dashboard-icon {
+        font-size: 2rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Admin Dashboard</h2>
+    <div>
+        <button class="btn btn-outline-primary me-2" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i> Refresh Data
+        </button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-download"></i> Export
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" id="exportCsv">CSV</a></li>
+                <li><a class="dropdown-item" href="#" id="exportPdf">PDF</a></li>
+                <li><a class="dropdown-item" href="#" id="exportExcel">Excel</a></li>
+            </ul>
+        </div>
+    <div class="card-footer text-end">
+        <a href="{% url 'activity_log' %}" class="btn btn-outline-primary btn-sm">View All Activity</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    // Feedback Status Chart
+    const feedbackStatusCtx = document.getElementById('feedbackStatusChart').getContext('2d');
+    const feedbackStatusChart = new Chart(feedbackStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys({{ status_distribution|safe }}),
+            datasets: [{
+                data: Object.values({{ status_distribution|safe }}),
+                backgroundColor: [
+                    '#ffc107', // warning - pending
+                    '#17a2b8', // info - under review
+                    '#28a745', // success - resolved
+                    '#6c757d'  // secondary - closed
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+
+    // Feedback Category Chart
+    const feedbackCategoryCtx = document.getElementById('feedbackCategoryChart').getContext('2d');
+    const feedbackCategoryChart = new Chart(feedbackCategoryCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys({{ category_distribution|safe }}),
+            datasets: [{
+                label: 'Number of Feedback Items',
+                data: Object.values({{ category_distribution|safe }}),
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Geographic Chart
+    const geographicCtx = document.getElementById('geographicChart').getContext('2d');
+    const geographicChart = new Chart(geographicCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ district_feedback_counts|safe }}),
+            datasets: [{
+                data: Object.values({{ district_feedback_counts|safe }}),
+                backgroundColor: [
+                    '#007bff', '#28a745', '#ffc107', '#dc3545',
+                    '#17a2b8', '#6c757d', '#6610f2', '#fd7e14'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                }
+            }
+        }
+    });
+
+    // Sentiment Chart
+    const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+    const sentimentChart = new Chart(sentimentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Neutral', 'Negative'],
+            datasets: [{
+                data: [
+                    {{ sentiment_distribution.positive }},
+                    {{ sentiment_distribution.neutral }},
+                    {{ sentiment_distribution.negative }}
+                ],
+                backgroundColor: [
+                    '#28a745', // success - positive
+                    '#6c757d', // secondary - neutral
+                    '#dc3545'  // danger - negative
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+
+    // Refresh data
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        location.reload();
+    });
+
+    // Export functionality (placeholders)
+    document.getElementById('exportCsv').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Export to CSV functionality would be implemented here');
+    });
+
+    document.getElementById('exportPdf').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Export to PDF functionality would be implemented here');
+    });
+
+    document.getElementById('exportExcel').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Export to Excel functionality would be implemented here');
+    });
+</script>
+{% endblock %}
+</div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-4">
+        <div class="card border-primary stats-card h-100">
+            <div class="card-body text-center">
+                <div class="dashboard-icon mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="card-title">Registered Users</h5>
+                <h3 class="card-text text-primary">{{ user_stats.total_users }}</h3>
+                <p class="text-muted">
+                    {{ user_stats.verified_users }} verified
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card border-success stats-card h-100">
+            <div class="card-body text-center">
+                <div class="dashboard-icon mb-3">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <h5 class="card-title">Feedback</h5>
+                <h3 class="card-text text-success">{{ feedback_stats.total_feedback }}</h3>
+                <p class="text-muted">
+                    {{ feedback_stats.feedback_last_30_days }} in last 30 days
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card border-danger stats-card h-100">
+            <div class="card-body text-center">
+                <div class="dashboard-icon mb-3">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h5 class="card-title">Complaints</h5>
+                <h3 class="card-text text-danger">{{ complaint_stats.total_complaints }}</h3>
+                <p class="text-muted">
+                    {{ complaint_stats.complaints_last_30_days }} in last 30 days
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card border-info stats-card h-100">
+            <div class="card-body text-center">
+                <div class="dashboard-icon mb-3">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h5 class="card-title">Publications</h5>
+                <h3 class="card-text text-info">{{ publication_stats.total_gazettes|add:publication_stats.total_reports }}</h3>
+                <p class="text-muted">
+                    {{ publication_stats.total_gazettes }} gazettes, {{ publication_stats.total_reports }} reports
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Overview -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Feedback Status</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="feedbackStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Feedback by Category</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="feedbackCategoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Geographic and Sentiment Analysis -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Geographic Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="geographicChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Sentiment Analysis</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Recent Activity</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            {% for activity in recent_activity %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ activity.user.first_name }} {{ activity.user.last_name }}</strong>
+                    {{ activity.action }}
+                    <a href="{{ activity.link }}">{{ activity.item }}</a>
+                </div>
+                <span class="badge bg-primary rounded-pill">{{ activity.time_ago }}</span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-center">No recent activity</li>
+            {% endfor %}
+        </ul>
+    </div>
