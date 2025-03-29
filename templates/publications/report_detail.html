@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ report.title }} | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ report.title }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ report.title }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <p><strong>Institution:</strong> {{ report.institution_name }}</p>
+                <p><strong>Year:</strong> {{ report.report_year }}</p>
+                <p><strong>Category:</strong> {{ report.category.name }}</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ report.document_url }}" class="btn btn-success" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i> View Document
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        {% if user.role == 'admin' %}
+            <a href="{% url 'edit_report' report.id %}" class="btn btn-secondary">
+                <i class="fas fa-edit me-2"></i> Edit
+            </a>
+        {% endif %}
+        
+        <a href="{% url 'report_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i> Back to List
+        </a>
+    </div>
+</div>
+{% endblock %}
