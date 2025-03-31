@@ -1,6 +1,6 @@
 # accounts/web_views.py
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
@@ -96,3 +96,8 @@ def edit_profile_view(request):
     }
     
     return render(request, 'accounts/edit_profile.html', context)
+def logout_view(request):
+    """View for user logout"""
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('home')

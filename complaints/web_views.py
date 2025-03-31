@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.db.models import Q
-from .models import Complaint
+from .models import Complaint, ComplaintUpdate
 from .forms import ComplaintForm, StatusUpdateForm  # You'll need to create these forms
 
 @login_required
@@ -42,6 +42,30 @@ def complaint_list(request):
     
     return render(request, 'complaints/list.html', context)
 
+def login_view(request):
+    """View for user login"""
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = authenticate(request, email=email, password=password)
+            
+            if user is not None:
+                login(request, user)
+                # Redirect to the next page if specified, otherwise go to home
+                next_page = request.GET.get('next', 'home')
+                return redirect(next_page)
+            else:
+                messages.error(request, 'Invalid email or password.')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'accounts/login.html', {'form': form})
+
 @login_required
 def complaint_detail(request, pk):
     """View to display complaint details"""
@@ -77,6 +101,33 @@ def complaint_create(request):
     }
     
     return render(request, 'complaints/create.html', context)
+
+@login_required
+def add_complaint_update(request, complaint_id):
+    """View to add an update to a complaint"""
+    complaint = get_object_or_404(Complaint, pk=complaint_id)
+    
+    # Check if user has permission to add updates
+    if request.user != complaint.user and request.user.role != 'admin':
+        return HttpResponseForbidden("You don't have permission to add updates to this complaint.")
+    
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            # Create the update
+            is_official = request.user.role == 'admin'
+            ComplaintUpdate.objects.create(
+                complaint=complaint,
+                user=request.user,
+                content=content,
+                is_official=is_official
+            )
+            
+            messages.success(request, 'Your update has been added successfully!')
+        else:
+            messages.error(request, 'Update content cannot be empty.')
+    
+    return redirect('complaint_detail', pk=complaint_id)
 
 @login_required
 def complaint_edit(request, pk):

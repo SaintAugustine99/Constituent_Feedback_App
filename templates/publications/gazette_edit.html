@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Gazette | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gazette_list' %}">Gazettes</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gazette_detail' gazette.id %}">{{ gazette.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Edit Gazette</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_category" class="form-label">Category</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="text-danger">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_publish_date" class="form-label">Publish Date</label>
+                        {{ form.publish_date }}
+                        {% if form.publish_date.errors %}
+                            <div class="text-danger">{{ form.publish_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_gazette_number" class="form-label">Gazette Number</label>
+                        {{ form.gazette_number }}
+                        {% if form.gazette_number.errors %}
+                            <div class="text-danger">{{ form.gazette_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Document</label>
+                        {% if gazette.document_url %}
+                            <div class="mb-2">
+                                <a href="{{ gazette.document_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-file-pdf me-1"></i> View Current Document
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No document currently attached.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_document" class="form-label">Replace Document (PDF only)</label>
+                        {{ form.document }}
+                        {% if form.document.errors %}
+                            <div class="text-danger">{{ form.document.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Leave empty to keep the current document</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'gazette_detail' gazette.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

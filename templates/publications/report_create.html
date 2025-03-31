@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Report | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Create New Report</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Create New Report</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Report Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_institution_name" class="form-label">Institution Name</label>
+                        {{ form.institution_name }}
+                        <div class="form-text">Name of the institution or agency that published this report</div>
+                        {% if form.institution_name.errors %}
+                            <div class="text-danger">{{ form.institution_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_report_year" class="form-label">Report Year</label>
+                        {{ form.report_year }}
+                        {% if form.report_year.errors %}
+                            <div class="text-danger">{{ form.report_year.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_document_url" class="form-label">Document URL</label>
+                        {{ form.document_url }}
+                        <div class="form-text">Link to the official document (PDF recommended)</div>
+                        {% if form.document_url.errors %}
+                            <div class="text-danger">{{ form.document_url.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_category" class="form-label">Category</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="text-danger">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'report_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

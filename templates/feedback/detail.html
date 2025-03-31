@@ -16,7 +16,7 @@
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0">{{ feedback.title }}</h4>
         <span class="badge {% if feedback.status == 'pending' %}bg-warning{% elif feedback.status == 'under_review' %}bg-info{% elif feedback.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
-            {{ feedback.status|title|replace:"_":" " }}
+            {{ feedback.status|title }}
         </span>
     </div>
     <div class="card-body">

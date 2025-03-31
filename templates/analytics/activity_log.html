@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Log | Constituent Feedback Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Activity Log</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Activity Log</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">System Activity</h5>
+            <div>
+                <button class="btn btn-sm btn-outline-light" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Item</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if activity_log %}
+                            {% for entry in activity_log %}
+                                <tr>
+                                    <td>
+                                        {% if entry.user.first_name %}
+                                            {{ entry.user.first_name }} {{ entry.user.last_name }}
+                                        {% else %}
+                                            {{ entry.user }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.action }}</td>
+                                    <td>
+                                        {% if entry.link %}
+                                            <a href="{{ entry.link }}">{{ entry.item }}</a>
+                                        {% else %}
+                                            {{ entry.item }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.timestamp|date:"F j, Y, g:i a" }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No activity records found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if activity_log.has_other_pages %}
+            <nav aria-label="Activity log pagination">
+                <ul class="pagination justify-content-center">
+                    {% if activity_log.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activity_log.previous_page_number }}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo; First</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in activity_log.paginator.page_range %}
+                        {% if activity_log.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > activity_log.number|add:'-3' and num < activity_log.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if activity_log.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activity_log.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activity_log.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Last &raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh functionality
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        location.reload();
+    });
+</script>
+{% endblock %}

@@ -63,7 +63,7 @@
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">{{ feedback.title }}</h5>
                                     <span class="badge {% if feedback.status == 'pending' %}bg-warning{% elif feedback.status == 'under_review' %}bg-info{% elif feedback.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
-                                        {{ feedback.status|title|replace:"_":" " }}
+                                        {{ feedback.status|title }}
                                     </span>
                                 </div>
                                 <p class="mb-1">{{ feedback.description|truncatechars:100 }}</p>
@@ -98,7 +98,7 @@
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">{{ complaint.title }}</h5>
                                     <span class="badge {% if complaint.status == 'submitted' %}bg-warning{% elif complaint.status == 'under_review' %}bg-info{% elif complaint.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
-                                        {{ complaint.status|title|replace:"_":" " }}
+                                        {{ complaint.status|title }}
                                     </span>
                                 </div>
                                 <p class="mb-1">{{ complaint.description|truncatechars:100 }}</p>
