@@ -1,9 +1,8 @@
-import React, { useContext } from 'react'; // <--- Import useContext
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext'; // <--- Import Context
+import { AuthContext } from '../context/AuthContext';
 
-// ... (Keep your HeaderWrapper, Logo, styles the same) ...
 const HeaderWrapper = styled.header`
   padding: 1.5rem 2rem;
   background: ${({ theme }) => theme.colors.bg.surface}E6;
@@ -74,31 +73,31 @@ const LogoutButton = styled.button`
 `;
 
 const Header = ({ toggleTheme, isDarkMode }) => {
-    const { user, logout } = useContext(AuthContext); // <--- Use the Hook
+  const { user, logout } = useContext(AuthContext);
 
-    return (
-        <HeaderWrapper>
-            <Logo to="/">JAMII.</Logo>
+  return (
+    <HeaderWrapper>
+      <Logo to="/">JAMII.</Logo>
 
-            <NavActions>
-                {user ? (
-                    <>
-                        <UserGreeting>Jambo, {user.username}</UserGreeting>
-                        <LogoutButton onClick={logout}>Logout</LogoutButton>
-                    </>
-                ) : (
-                    <>
-                        <ButtonLink to="/login">Login</ButtonLink>
-                        <ButtonLink to="/register">Register</ButtonLink>
-                    </>
-                )}
+      <NavActions>
+        {user ? (
+          <>
+            <UserGreeting>Jambo, {user.username}</UserGreeting>
+            <LogoutButton onClick={logout}>Logout</LogoutButton>
+          </>
+        ) : (
+          <>
+            <ButtonLink to="/login">Login</ButtonLink>
+            <ButtonLink to="/register">Register</ButtonLink>
+          </>
+        )}
 
-                <ThemeToggle onClick={toggleTheme}>
-                    {isDarkMode ? '☀️' : '🌙'}
-                </ThemeToggle>
-            </NavActions>
-        </HeaderWrapper>
-    );
+        <ThemeToggle onClick={toggleTheme}>
+          {isDarkMode ? '☀️' : '🌙'}
+        </ThemeToggle>
+      </NavActions>
+    </HeaderWrapper>
+  );
 };
 
 export default Header;

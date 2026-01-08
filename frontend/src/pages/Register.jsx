@@ -4,14 +4,20 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { locationService, authService } from '../services/api';
 
-// --- STYLES (The Jamii Olive Theme) ---
+// --- STYLES ---
 const PageWrapper = styled.div`
-  min-height: 100vh;
+  min-height: calc(100vh - 80px); /* Account for header */
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.bg.primary};
-  padding: 2rem;
+  padding: 2rem 1rem;
+  
+  @media (max-width: 600px) {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
 `;
 
 const FormCard = styled(motion.div)`
@@ -97,44 +103,43 @@ const ErrorMsg = styled.div`
   font-size: 0.9rem;
 `;
 
-// --- THE COMPONENT ---
+// --- COMPONENT ---
 const Register = () => {
     const navigate = useNavigate();
 
-    // 1. Form Data State
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
-        ward_id: '' // This is what we send to backend
+        ward_id: ''
     });
 
-    // 2. Location Logic State
+    // Location Data State
     const [counties, setCounties] = useState([]);
     const [constituencies, setConstituencies] = useState([]);
     const [wards, setWards] = useState([]);
 
-    // Selection States (for filtering)
+    // Selection Logic
     const [selectedCounty, setSelectedCounty] = useState('');
     const [selectedConstituency, setSelectedConstituency] = useState('');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // 3. Load Counties on Mount
+    // Load Counties on Mount
     useEffect(() => {
         locationService.getCounties()
             .then(data => setCounties(data))
             .catch(err => console.error("Failed to load counties", err));
     }, []);
 
-    // 4. Handle County Change -> Load Constituencies
+    // Handle County Change
     const handleCountyChange = async (e) => {
         const countyId = e.target.value;
         setSelectedCounty(countyId);
-        setSelectedConstituency(''); // Reset child
-        setWards([]); // Reset grandchild
-        setFormData({ ...formData, ward_id: '' }); // Reset selection
+        setSelectedConstituency('');
+        setWards([]);
+        setFormData({ ...formData, ward_id: '' });
 
         if (countyId) {
             const data = await locationService.getConstituencies(countyId);
@@ -142,7 +147,7 @@ const Register = () => {
         }
     };
 
-    // 5. Handle Constituency Change -> Load Wards
+    // Handle Constituency Change
     const handleConstituencyChange = async (e) => {
         const constId = e.target.value;
         setSelectedConstituency(constId);
@@ -161,10 +166,9 @@ const Register = () => {
 
         try {
             await authService.register(formData);
-            // Success! Redirect to login
             navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.username || "Registration failed. Please check your details.");
+            setError("Registration failed. Please check your details.");
         } finally {
             setLoading(false);
         }
@@ -172,23 +176,17 @@ const Register = () => {
 
     return (
         <PageWrapper>
-            <FormCard
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-            >
+            <FormCard initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <Title>Join Jamii.</Title>
                 <Subtitle>Connect with your local governance.</Subtitle>
 
                 {error && <ErrorMsg>{error}</ErrorMsg>}
 
                 <form onSubmit={handleSubmit}>
-                    {/* --- User Details --- */}
                     <InputGroup>
                         <label>Username</label>
                         <input
-                            type="text"
-                            required
-                            placeholder="e.g. CitizenJane"
+                            type="text" required placeholder="e.g. CitizenJane"
                             value={formData.username}
                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         />
@@ -197,9 +195,7 @@ const Register = () => {
                     <InputGroup>
                         <label>Email</label>
                         <input
-                            type="email"
-                            required
-                            placeholder="jane@example.com"
+                            type="email" required placeholder="jane@example.com"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
@@ -208,8 +204,7 @@ const Register = () => {
                     <InputGroup>
                         <label>Password</label>
                         <input
-                            type="password"
-                            required
+                            type="password" required
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         />
@@ -217,7 +212,6 @@ const Register = () => {
 
                     <hr style={{ margin: '2rem 0', opacity: 0.1 }} />
 
-                    {/* --- The Chained Selects --- */}
                     <InputGroup>
                         <label>County</label>
                         <select value={selectedCounty} onChange={handleCountyChange} required>
@@ -231,10 +225,8 @@ const Register = () => {
                     <InputGroup>
                         <label>Constituency</label>
                         <select
-                            value={selectedConstituency}
-                            onChange={handleConstituencyChange}
-                            disabled={!selectedCounty}
-                            required
+                            value={selectedConstituency} onChange={handleConstituencyChange}
+                            disabled={!selectedCounty} required
                         >
                             <option value="">Select Constituency...</option>
                             {constituencies.map(c => (
@@ -248,8 +240,7 @@ const Register = () => {
                         <select
                             value={formData.ward_id}
                             onChange={(e) => setFormData({ ...formData, ward_id: e.target.value })}
-                            disabled={!selectedConstituency}
-                            required
+                            disabled={!selectedConstituency} required
                         >
                             <option value="">Select Ward...</option>
                             {wards.map(w => (

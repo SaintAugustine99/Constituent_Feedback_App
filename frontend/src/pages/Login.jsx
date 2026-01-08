@@ -4,14 +4,18 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-// Reusing styles for consistency
+// Reuse styles from Register for consistency
 const PageWrapper = styled.div`
-  min-height: 80vh;
+  min-height: calc(100vh - 80px); /* Account for header */
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.bg.primary};
-  padding: 2rem;
+  padding: 2rem 1rem;
+  
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
 `;
 
 const FormCard = styled(motion.div)`
@@ -75,11 +79,6 @@ const Button = styled.button`
     background: ${({ theme }) => theme.colors.brand.dark};
     transform: translateY(-2px);
   }
-  
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
 `;
 
 const ErrorMsg = styled.div`
@@ -92,70 +91,62 @@ const ErrorMsg = styled.div`
 `;
 
 const Login = () => {
-    const navigate = useNavigate();
-    const { login } = useContext(AuthContext); // Access Global Auth
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
-    const [formData, setFormData] = useState({ username: '', password: '' });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-        try {
-            await login(formData);
-            navigate('/'); // Redirect to Home/Dashboard on success
-        } catch (err) {
-            setError('Invalid username or password');
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      await login(formData);
+      navigate('/');
+    } catch (err) {
+      setError('Invalid username or password');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <PageWrapper>
-            <FormCard
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-            >
-                <Title>Welcome Back.</Title>
+  return (
+    <PageWrapper>
+      <FormCard initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+        <Title>Welcome Back.</Title>
+        {error && <ErrorMsg>{error}</ErrorMsg>}
 
-                {error && <ErrorMsg>{error}</ErrorMsg>}
+        <form onSubmit={handleSubmit}>
+          <InputGroup>
+            <label>Username</label>
+            <input
+              type="text" required value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            />
+          </InputGroup>
 
-                <form onSubmit={handleSubmit}>
-                    <InputGroup>
-                        <label>Username</label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.username}
-                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        />
-                    </InputGroup>
+          <InputGroup>
+            <label>Password</label>
+            <input
+              type="password" required value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
+          </InputGroup>
 
-                    <InputGroup>
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        />
-                    </InputGroup>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Verifying...' : 'Login'}
+          </Button>
+        </form>
 
-                    <Button type="submit" disabled={loading}>
-                        {loading ? 'Verifying...' : 'Login'}
-                    </Button>
-                </form>
-
-                <p style={{ marginTop: '1.5rem', textAlign: 'center', color: '#666' }}>
-                    New here? <Link to="/register" style={{ fontWeight: 'bold', color: '#556B2F' }}>Join Jamii</Link>
-                </p>
-            </FormCard>
-        </PageWrapper>
-    );
+        <p style={{ marginTop: '1.5rem', textAlign: 'center', color: '#666' }}>
+          New here? <Link to="/register" style={{ fontWeight: 'bold', color: '#556B2F' }}>Join Jamii</Link>
+        </p>
+      </FormCard>
+    </PageWrapper>
+  );
 };
 
 export default Login;
