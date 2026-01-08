@@ -9,6 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import LegislationDashboard from './pages/LegislationDashboard';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -26,12 +27,7 @@ function App() {
           <Routes>
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={
-              <div style={{ padding: '5rem', textAlign: 'center' }}>
-                <h1>Dashboard</h1>
-                <p>Welcome to the constituent feedback platform.</p>
-              </div>
-            } />
+            <Route path="/" element={<LegislationDashboard />} />
           </Routes>
 
         </Router>

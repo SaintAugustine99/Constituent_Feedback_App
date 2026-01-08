@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Local
     'locations',
     'accounts',
+    'legislative_tracker',
 ]
 
 MIDDLEWARE = [
@@ -140,3 +141,11 @@ REST_FRAMEWORK = {
 
 # AUTHENTICATION
 AUTH_USER_MODEL = 'accounts.User'  # <--- Crucial! Tells Django to use our Citizen model
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Media Files (Uploads)
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
