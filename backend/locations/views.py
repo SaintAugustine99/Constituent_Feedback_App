@@ -1,0 +1,28 @@
+from rest_framework import generics
+from .models import County, Constituency, Ward
+from .serializers import CountySerializer, ConstituencySerializer, WardSerializer
+
+# 1. Get All Counties (Step 1 of Dropdown)
+class CountyListAPI(generics.ListAPIView):
+    queryset = County.objects.all()
+    serializer_class = CountySerializer
+
+# 2. Get Constituencies (Filtered by County)
+class ConstituencyListAPI(generics.ListAPIView):
+    serializer_class = ConstituencySerializer
+
+    def get_queryset(self):
+        county_id = self.request.query_params.get('county_id')
+        if county_id:
+            return Constituency.objects.filter(county_id=county_id)
+        return Constituency.objects.none() # Return nothing if no county selected
+
+# 3. Get Wards (Filtered by Constituency)
+class WardListAPI(generics.ListAPIView):
+    serializer_class = WardSerializer
+
+    def get_queryset(self):
+        constituency_id = self.request.query_params.get('constituency_id')
+        if constituency_id:
+            return Ward.objects.filter(constituency_id=constituency_id)
+        return Ward.objects.none()
