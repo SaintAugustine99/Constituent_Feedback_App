@@ -132,7 +132,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # CORS CONFIGURATION
 # Set CORS_ALLOWED_ORIGINS env var on Render to your Vercel domain
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:5173 http://localhost:3000 https://jamii-platform.vercel.app").split(' ')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:5173 http://localhost:3000 https://constituent-feedback-aukj1erld-saintaugustine99s-projects.vercel.app").split(' ')
 # Fallback to allow all origins if env var not properly set (for debugging)
 CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL', 'True') == 'True'
 
