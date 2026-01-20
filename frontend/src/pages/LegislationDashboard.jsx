@@ -68,6 +68,57 @@ const MenuToggle = styled.button`
   }
 `;
 
+const NewsToggle = styled.button`
+  display: none;
+  background: ${({ theme }) => theme.colors.brand.primary};
+  color: white;
+  border: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+  @media (max-width: 1200px) {
+    display: block;
+  }
+`;
+
+const Overlay = styled.div`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 40;
+
+  @media (max-width: 1024px) {
+    display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+  }
+`;
+
+const NewsFeedWrapper = styled.div`
+  @media (max-width: 1200px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 320px;
+    z-index: 60;
+    background: ${({ theme }) => theme.colors.bg.secondary};
+    transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(100%)')};
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+    box-shadow: ${({ isOpen }) => (isOpen ? '-4px 0 10px rgba(0,0,0,0.1)' : 'none')};
+  }
+`;
+
 const SidebarTitle = styled.h3`
   font-family: ${({ theme }) => theme.fonts.heading};
   color: ${({ theme }) => theme.colors.brand.dark};
@@ -215,6 +266,7 @@ function LegislationDashboard() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedInstrument, setSelectedInstrument] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isNewsPanelOpen, setNewsPanelOpen] = useState(false);
 
   // New State for View Mode ('legislation' or 'issues')
   const [viewMode, setViewMode] = useState('legislation'); // 'legislation', 'issues', 'facilities', 'projects', 'leaders'
@@ -428,9 +480,19 @@ function LegislationDashboard() {
 
       </MainContent>
 
+      {/* OVERLAY FOR MOBILE SIDEBARS */}
+      <Overlay isOpen={isSidebarOpen || isNewsPanelOpen} onClick={() => { setSidebarOpen(false); setNewsPanelOpen(false); }} />
+
       {/* RIGHT SIDEBAR (NEWS) */}
-      <NewsFeed />
-    </DashboardContainer >
+      <NewsFeedWrapper isOpen={isNewsPanelOpen}>
+        <NewsFeed />
+      </NewsFeedWrapper>
+
+      {/* NEWS TOGGLE BUTTON (Mobile Only) */}
+      <NewsToggle onClick={() => setNewsPanelOpen(!isNewsPanelOpen)}>
+        {isNewsPanelOpen ? '✕ Close' : '📰 News'}
+      </NewsToggle>
+    </DashboardContainer>
   );
 }
 
