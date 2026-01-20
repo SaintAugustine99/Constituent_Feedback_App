@@ -5,8 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import useLegislation from '../hooks/useLegislation';
 import FeedbackForm from '../components/FeedbackForm';
-
 import NewsFeed from '../components/NewsFeed';
+
+// --- MOVED IMPORTS TO TOP LEVEL ---
+import IssueReporter from '../components/IssueReporter';
+import FacilityBooking from '../components/FacilityBooking';
+import ProjectTracker from '../components/ProjectTracker';
+import LeaderDirectory from '../components/LeaderDirectory';
 
 // --- STYLED COMPONENTS (Jamii Olive Theme) ---
 
@@ -194,10 +199,11 @@ const BackButton = styled.button`
 function LegislationDashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+
   // 1. Fetch Instruments Active
   const { data: instruments, loading, error } = useLegislation('instruments', { activeOnly: true });
+
   // 2. Fetch Dockets (Simulating fetch or using data)
-  // In a real app we'd fetch this. Hardcoding for the "Crucial Dockets" demo request.
   const crucialDockets = [
     { id: 'all', name: 'All Legislation' },
     { id: 'dev', name: 'Devolution & Planning' },
@@ -206,15 +212,6 @@ function LegislationDashboard() {
     { id: 'edu', name: 'Education & Vocational Training' },
   ];
 
-  // ... imports
-  import IssueReporter from '../components/IssueReporter';
-  import FacilityBooking from '../components/FacilityBooking';
-  import ProjectTracker from '../components/ProjectTracker';
-  import LeaderDirectory from '../components/LeaderDirectory';
-
-  // ... (Sidebar styled component updates were already done)
-
-  // ... inside LegislationDashboard function
   const [activeTab, setActiveTab] = useState('all');
   const [selectedInstrument, setSelectedInstrument] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -222,7 +219,15 @@ function LegislationDashboard() {
   // New State for View Mode ('legislation' or 'issues')
   const [viewMode, setViewMode] = useState('legislation'); // 'legislation', 'issues', 'facilities', 'projects', 'leaders'
 
-  // ... filteredInstruments logic remains ...
+  // Filter Logic
+  const filteredInstruments = activeTab === 'all'
+    ? instruments
+    : instruments.filter(i => {
+      // Basic fuzzy matching for demo purposes since backend dockets might not match IDs exactly
+      if (activeTab === 'dev') return i.docket_name.includes('County');
+      if (activeTab === 'health') return i.docket_name.includes('Health');
+      return true;
+    });
 
   return (
     <DashboardContainer>
@@ -422,8 +427,6 @@ function LegislationDashboard() {
         )}
 
       </MainContent>
-
-
 
       {/* RIGHT SIDEBAR (NEWS) */}
       <NewsFeed />
