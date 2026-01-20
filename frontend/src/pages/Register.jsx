@@ -130,8 +130,16 @@ const Register = () => {
     // Load Counties on Mount
     useEffect(() => {
         locationService.getCounties()
-            .then(data => setCounties(data))
-            .catch(err => console.error("Failed to load counties", err));
+            .then(data => {
+                console.log("Counties loaded:", data);
+                // Handle optional pagination if backend introduces it unexpectedly
+                const list = Array.isArray(data) ? data : (data.results || []);
+                setCounties(list);
+            })
+            .catch(err => {
+                console.error("Failed to load counties", err);
+                setError("Failed to load location data. Please refresh.");
+            });
     }, []);
 
     // Handle County Change
@@ -216,7 +224,7 @@ const Register = () => {
                     <InputGroup>
                         <label>County</label>
                         <select value={selectedCounty} onChange={handleCountyChange} required>
-                            <option value="">Select County...</option>
+                            <option value="">Select County... ({counties.length} available)</option>
                             {counties.map(c => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
                             ))}
