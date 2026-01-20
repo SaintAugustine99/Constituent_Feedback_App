@@ -10,6 +10,7 @@ import Header from './components/Header';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import LegislationDashboard from './pages/LegislationDashboard';
+import Community from './pages/Community';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -28,6 +29,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<LegislationDashboard />} />
+            <Route path="/community" element={<Community />} />
           </Routes>
 
         </Router>

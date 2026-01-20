@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const FeedbackForm = ({ instrumentId, instrumentTitle }) => {
+    const { user } = useContext(AuthContext); // Access auth context
+    const navigate = useNavigate(); // For navigation to login
+
     const [formData, setFormData] = useState({
-        full_name: '',
-        constituency: '',
+        full_name: user?.username || '', // Pre-fill if user exists
+        constituency: user?.ward || '',
         position: 'SUPPORT', // Default value
         comments: '',
         image_evidence: null
@@ -34,14 +39,14 @@ const FeedbackForm = ({ instrumentId, instrumentTitle }) => {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/api/legislation/feedback/', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/legislation/feedback/`, {
                 method: 'POST',
                 body: data, // No headers needed; fetch sets multipart/form-data automatically
             });
 
             if (response.ok) {
                 setStatus('success');
-                setFormData({ full_name: '', constituency: '', position: 'SUPPORT', comments: '', image_evidence: null });
+                setFormData({ full_name: user?.username || '', constituency: user?.ward || '', position: 'SUPPORT', comments: '', image_evidence: null });
             } else {
                 setStatus('error');
             }
@@ -50,16 +55,42 @@ const FeedbackForm = ({ instrumentId, instrumentTitle }) => {
         }
     };
 
+    // 1. Guest View (Login CTA)
+    if (!user) {
+        return (
+            <div className="p-6 bg-gray-50 rounded-lg border border-gray-200 text-center mt-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Have your say!</h3>
+                <p className="text-gray-600 mb-4">You must be logged in to submit feedback on <span className="font-semibold">{instrumentTitle}</span>.</p>
+                <div className="flex justify-center gap-4">
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="bg-blue-600 text-white py-2 px-6 rounded-full hover:bg-blue-700 transition font-semibold"
+                    >
+                        Login to Participate
+                    </button>
+                    <button
+                        onClick={() => navigate('/register')}
+                        className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                    >
+                        Create an Account
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // 2. Success View
     if (status === 'success') {
         return (
             <div className="p-4 bg-green-100 text-green-700 rounded-lg">
-                <h3 className="font-bold">Thank you!</h3>
+                <h3 className="font-bold">Thank you, {user.username}!</h3>
                 <p>Your participation on "{instrumentTitle}" has been recorded.</p>
                 <button onClick={() => setStatus('idle')} className="text-sm underline mt-2">Submit another?</button>
             </div>
         );
     }
 
+    // 3. Authenticated Form View
     return (
         <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow-md mt-4 border-t-4 border-blue-600">
             <h3 className="text-xl font-bold text-gray-800">Submit Your Views</h3>

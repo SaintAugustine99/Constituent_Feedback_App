@@ -1,97 +1,345 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import useLegislation from '../hooks/useLegislation';
 import FeedbackForm from '../components/FeedbackForm';
 
+import NewsFeed from '../components/NewsFeed';
+
+// --- STYLED COMPONENTS (Jamii Olive Theme) ---
+
+const DashboardContainer = styled.div`
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.colors.bg.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  display: grid;
+  grid-template-columns: 280px 1fr 320px; /* 3-Column Layout */
+  font-family: ${({ theme }) => theme.fonts.body};
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 280px 1fr; /* Hide news on medium screens */
+  }
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Sidebar = styled.aside`
+  background-color: ${({ theme }) => theme.colors.bg.secondary};
+  border-right: 1px solid ${({ theme }) => theme.colors.border};
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  @media (max-width: 1024px) {
+    display: none; /* Mobile menu to be added later or simple stack */
+  }
+`;
+
+const SidebarTitle = styled.h3`
+  font-family: ${({ theme }) => theme.fonts.heading};
+  color: ${({ theme }) => theme.colors.brand.dark};
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid ${({ theme }) => theme.colors.accent.gold};
+  padding-bottom: 0.5rem;
+  display: inline-block;
+`;
+
+const NavItem = styled.div`
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
+  color: ${({ theme, active }) => active ? 'white' : theme.colors.text.secondary};
+  background: ${({ theme, active }) => active ? theme.colors.brand.primary : 'transparent'};
+  font-weight: ${({ active }) => active ? '600' : '400'};
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${({ theme, active }) => active ? theme.colors.brand.primary : theme.colors.brand.washed};
+    color: ${({ theme, active }) => active ? 'white' : theme.colors.brand.dark};
+    transform: translateX(5px);
+  }
+`;
+
+const MainContent = styled.main`
+  padding: 3rem;
+  overflow-y: auto;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+`;
+
+const HeaderSection = styled.div`
+  margin-bottom: 3rem;
+`;
+
+const PageTitle = styled.h1`
+  font-family: ${({ theme }) => theme.fonts.heading};
+  color: ${({ theme }) => theme.colors.brand.dark};
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+const SubText = styled.p`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 1.1rem;
+`;
+
+const CardsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+`;
+
+const InstrumentCard = styled(motion.div)`
+  background: ${({ theme }) => theme.colors.bg.surface};
+  padding: 1.5rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
+  box-shadow: ${({ theme }) => theme.shadows.soft};
+  border-left: 4px solid ${({ theme }) => theme.colors.brand.primary};
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  h3 {
+    font-family: ${({ theme }) => theme.fonts.heading};
+    font-size: 1.1rem;
+    color: ${({ theme }) => theme.colors.text.primary};
+    margin: 0.8rem 0;
+    line-height: 1.4;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+`;
+
+const Badge = styled.span`
+  background: ${({ theme, type }) => type === 'deadline' ? '#ffebee' : theme.colors.brand.washed};
+  color: ${({ theme, type }) => type === 'deadline' ? '#c62828' : theme.colors.brand.dark};
+  padding: 0.25rem 0.8rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const DetailPanel = styled(motion.div)`
+  position: relative;
+  background: ${({ theme }) => theme.colors.bg.surface};
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  margin-top: 2rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+
+  h2 {
+    font-family: ${({ theme }) => theme.fonts.heading};
+    color: ${({ theme }) => theme.colors.brand.dark};
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.brand.primary};
+  }
+`;
+
+// --- MAIN COMPONENT ---
+
 function LegislationDashboard() {
-    // 1. Fetch the data using our hook (using activeOnly to filter)
-    const { data: instruments, loading, error } = useLegislation('instruments', { activeOnly: true });
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  // 1. Fetch Instruments Active
+  const { data: instruments, loading, error } = useLegislation('instruments', { activeOnly: true });
+  // 2. Fetch Dockets (Simulating fetch or using data)
+  // In a real app we'd fetch this. Hardcoding for the "Crucial Dockets" demo request.
+  const crucialDockets = [
+    { id: 'all', name: 'All Legislation' },
+    { id: 'dev', name: 'Devolution & Planning' },
+    { id: 'infra', name: 'Infrastructure (Roads & Transport)' },
+    { id: 'health', name: 'Health & Sanitation' },
+    { id: 'edu', name: 'Education & Vocational Training' },
+  ];
 
-    // 2. State to track which law the user clicked on
-    const [selectedInstrument, setSelectedInstrument] = useState(null);
+  const [activeTab, setActiveTab] = useState('all');
+  const [selectedInstrument, setSelectedInstrument] = useState(null);
 
-    return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-            <main className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+  // Filter Logic (Client-side for demo smoothness)
+  // Note: Since we only seeded a few, strict filtering might show empty.
+  // We'll show all or basic filter for now.
+  const filteredInstruments = activeTab === 'all'
+    ? instruments
+    : instruments.filter(i => {
+      // Loose matching for demo purposes since docket names might vary in seed
+      const docketName = i.docket_name?.toLowerCase() || '';
+      if (activeTab === 'infra') return docketName.includes('roads') || docketName.includes('transport') || docketName.includes('infrastructure');
+      if (activeTab === 'health') return docketName.includes('health');
+      if (activeTab === 'edu') return docketName.includes('education');
+      return true;
+    });
 
-                {/* LEFT COLUMN: List of Active Participation Opportunities */}
-                <div className="lg:col-span-1 space-y-4">
-                    <h2 className="text-xl font-bold border-b pb-2 mb-4">Open Opportunities</h2>
-
-                    {loading && <p>Loading instruments...</p>}
-                    {error && <p className="text-red-500">Error loading data.</p>}
-
-                    {instruments.map((item) => (
-                        <div
-                            key={item.id}
-                            onClick={() => setSelectedInstrument(item)}
-                            className={`p-4 rounded-lg cursor-pointer transition border ${selectedInstrument?.id === item.id
-                                    ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500'
-                                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow'
-                                }`}
-                        >
-                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                {item.category_name}
-                            </span>
-                            <h3 className="font-bold mt-2 leading-snug">{item.title}</h3>
-                            <p className="text-xs text-gray-500 mt-2">{item.docket_name}</p>
-                            <p className="text-xs text-red-500 font-medium mt-1">
-                                Deadline: {new Date(item.participation_deadline).toLocaleDateString()}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* RIGHT COLUMN: The Detail View & Feedback Form */}
-                <div className="lg:col-span-2">
-                    {selectedInstrument ? (
-                        <div className="space-y-6 animate-fade-in">
-                            {/* Bill Details Card */}
-                            <div className="bg-white p-8 rounded-lg shadow border border-gray-200">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-800">{selectedInstrument.title}</h2>
-                                        <p className="text-slate-500">{selectedInstrument.docket_name}</p>
-                                    </div>
-                                    <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">
-                                        {selectedInstrument.current_status.replace('_', ' ')}
-                                    </span>
-                                </div>
-
-                                <div className="mt-6 prose prose-blue max-w-none">
-                                    <h4 className="text-sm uppercase text-gray-500 font-bold tracking-wider">Summary</h4>
-                                    <p className="text-gray-700 mt-1">{selectedInstrument.summary_text || "No summary provided by the docket."}</p>
-                                </div>
-
-                                {/* Simulated Download Link */}
-                                <div className="mt-6 pt-6 border-t flex gap-4">
-                                    <button className="text-blue-600 font-medium text-sm flex items-center hover:underline">
-                                        📄 Download Full Legal Text (PDF)
-                                    </button>
-                                    <button className="text-blue-600 font-medium text-sm flex items-center hover:underline">
-                                        📊 View Previous Status Reports
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* THE FEEDBACK FORM */}
-                            <FeedbackForm
-                                instrumentId={selectedInstrument.id}
-                                instrumentTitle={selectedInstrument.title}
-                            />
-
-                        </div>
-                    ) : (
-                        // Empty State
-                        <div className="h-full flex items-center justify-center text-gray-400 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg p-12">
-                            <div className="text-center">
-                                <p className="text-lg">Select an item from the list to view details and submit your feedback.</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </main>
+  return (
+    <DashboardContainer>
+      {/* SIDEBAR NAVIGATION */}
+      <Sidebar>
+        <div>
+          <SidebarTitle>Crucial Dockets</SidebarTitle>
+          {crucialDockets.map(dock => (
+            <NavItem
+              key={dock.id}
+              active={activeTab === dock.id}
+              onClick={() => { setActiveTab(dock.id); setSelectedInstrument(null); }}
+            >
+              {dock.name}
+            </NavItem>
+          ))}
         </div>
-    );
+
+        <div>
+          <SidebarTitle>Your Space</SidebarTitle>
+          <NavItem onClick={() => user ? console.log('Nav to Submissions') : alert('Please login to view your submissions.')}>
+            My Submissions
+          </NavItem>
+          <NavItem onClick={() => user ? console.log('Nav to Saved') : alert('Please login to save bills.')}>
+            Saved Bills
+          </NavItem>
+          <NavItem onClick={() => user ? console.log('Nav to Profile') : alert('Login to access profile settings.')}>
+            Profile Settings
+          </NavItem>
+        </div>
+      </Sidebar>
+
+      {/* MAIN CONTENT AREA */}
+      <MainContent>
+        <HeaderSection>
+          <PageTitle>Legislative Tracker</PageTitle>
+          <SubText>Participate in the decisions shaping your future.</SubText>
+        </HeaderSection>
+
+        {/* Render List or Detail View */}
+        <AnimatePresence mode="wait">
+          {!selectedInstrument ? (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+            >
+              {/* LIST VIEW */}
+              <h3 style={{ marginBottom: '1.5rem', fontWeight: 'bold', color: '#556B2F' }}>
+                {activeTab === 'all' ? 'Active Opportunities' : `${crucialDockets.find(d => d.id === activeTab)?.name}`}
+              </h3>
+
+              {loading && <p>Loading legislation...</p>}
+
+              <CardsGrid>
+                {filteredInstruments.map(item => (
+                  <InstrumentCard
+                    key={item.id}
+                    onClick={() => setSelectedInstrument(item)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <Badge>{item.category_name}</Badge>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p style={{ fontSize: '0.9rem', color: '#666' }}>{item.docket_name}</p>
+
+                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                      <Badge type="deadline">
+                        Due: {new Date(item.participation_deadline).toLocaleDateString()}
+                      </Badge>
+                    </div>
+                  </InstrumentCard>
+                ))}
+
+                {instruments.length === 0 && !loading && (
+                  <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', background: 'white', borderRadius: '12px' }}>
+                    No active legislation found for this category.
+                  </div>
+                )}
+              </CardsGrid>
+
+            </motion.div>
+          ) : (
+            <motion.div
+              key="detail"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              {/* DETAIL VIEW */}
+              <BackButton onClick={() => setSelectedInstrument(null)}>
+                ← Back to List
+              </BackButton>
+
+              <DetailPanel>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <Badge>{selectedInstrument.category_name}</Badge>
+                    <h2>{selectedInstrument.title}</h2>
+                    <p style={{ fontSize: "1.1rem", color: "#556B2F", fontWeight: "bold" }}>
+                      {selectedInstrument.docket_name}
+                    </p>
+                  </div>
+                  <Badge type="deadline">
+                    Action Required by: {new Date(selectedInstrument.participation_deadline).toLocaleDateString()}
+                  </Badge>
+                </div>
+
+                <div style={{ margin: "2rem 0", lineHeight: "1.8", color: "#444" }}>
+                  <h4 style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>Executive Summary</h4>
+                  <p>{selectedInstrument.summary_text || "No summary provided. Please refer to the full text."}</p>
+                </div>
+
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <button style={{ padding: "0.8rem 1.5rem", background: "#f0f0f0", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
+                    📄 Read Full Text
+                  </button>
+                </div>
+
+                {/* FEEDBACK FORM INTEGRATION */}
+                <div style={{ marginTop: "3rem" }}>
+                  <FeedbackForm
+                    instrumentId={selectedInstrument.id}
+                    instrumentTitle={selectedInstrument.title}
+                  />
+                </div>
+
+              </DetailPanel>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </MainContent>
+
+      {/* RIGHT SIDEBAR (NEWS) */}
+      <NewsFeed />
+    </DashboardContainer>
+  );
 }
 
 export default LegislationDashboard;

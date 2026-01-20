@@ -58,14 +58,15 @@ const InputGroup = styled.div`
     padding: 0.8rem;
     border: 2px solid ${({ theme }) => theme.colors.brand.light}40;
     border-radius: 8px;
-    background: ${({ theme }) => theme.colors.bg.primary};
+    background: #ffffff; /* Force white background */
+    color: #000000; /* Force black text */
     font-family: ${({ theme }) => theme.fonts.body};
     transition: all 0.2s;
 
     &:focus {
       outline: none;
       border-color: ${({ theme }) => theme.colors.brand.primary};
-      background: white;
+      background: #ffffff;
     }
   }
 `;

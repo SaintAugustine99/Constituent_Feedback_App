@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // Replace with your actual Django URL
-const API_BASE_URL = 'http://localhost:8000/api/legislation';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/legislation`;
 
 /**
  * Custom Hook to fetch laws/bills
@@ -25,7 +25,7 @@ const useLegislation = (endpoint = 'instruments', filters = {}) => {
                     }
                 });
 
-                // Handle the custom "active" endpoint we created in views.py
+                // Handle the custom "active" endpoint
                 let url = `${API_BASE_URL}/${endpoint}/`;
                 if (filters.activeOnly) {
                     url = `${API_BASE_URL}/${endpoint}/active/`;
