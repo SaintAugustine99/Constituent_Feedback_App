@@ -19,9 +19,11 @@ urlpatterns = [
 
     # --- Legislative Tracker ---
     path('api/legislation/', include('legislative_tracker.urls')),
+    path('api/issues/', include('issues.urls')),
+    path('api/facilities/', include('facilities.urls')),
+    path('api/projects/', include('projects.urls')),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

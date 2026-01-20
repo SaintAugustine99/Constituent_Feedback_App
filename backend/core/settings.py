@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'locations',
     'accounts',
     'legislative_tracker',
+    'issues',
+    'facilities',
+    'projects',
 ]
 
 MIDDLEWARE = [

@@ -41,4 +41,61 @@ export const authService = {
   }
 };
 
+export const issueService = {
+  createRequest: async (formData) => {
+    // FormData is required for image uploads
+    const response = await api.post('/issues/requests/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  getMyRequests: async () => {
+    const response = await api.get('/issues/requests/');
+    return response.data;
+  }
+};
+
+export const facilityService = {
+  getAll: async () => {
+    const response = await api.get('/facilities/list/');
+    return response.data;
+  },
+  book: async (bookingData) => {
+    const response = await api.post('/facilities/bookings/', bookingData);
+    return response.data;
+  },
+  getMyBookings: async () => {
+    const response = await api.get('/facilities/bookings/');
+    return response.data;
+  }
+};
+
+export const projectService = {
+  getAll: async (filters = {}) => {
+    const response = await api.get('/projects/', { params: filters });
+    return response.data;
+  },
+  getUpdates: async (projectId) => {
+    const response = await api.get('/projects/updates/', { params: { project_id: projectId } });
+    return response.data;
+  },
+  postUpdate: async (formData) => {
+    const response = await api.post('/projects/updates/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  }
+};
+
+export const officialService = {
+  getAll: async (filters = {}) => {
+    // filters can be { ward_id, constituency_id, etc. }
+    const response = await api.get('/locations/officials/', { params: filters });
+    return response.data;
+  }
+};
+
 export default api;

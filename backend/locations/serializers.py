@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import County, Constituency, Ward
+from .models import County, Constituency, Ward, Official
 
 class WardSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,9 @@ class CountySerializer(serializers.ModelSerializer):
     class Meta:
         model = County
         fields = ['id', 'name', 'code', 'constituencies']
+
+class OfficialSerializer(serializers.ModelSerializer):
+    title_display = serializers.CharField(source='get_title_display', read_only=True)
+    class Meta:
+        model = Official
+        fields = '__all__'

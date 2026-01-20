@@ -34,9 +34,32 @@ const Sidebar = styled.aside`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  transition: transform 0.3s ease-in-out;
 
   @media (max-width: 1024px) {
-    display: none; /* Mobile menu to be added later or simple stack */
+    position: fixed;
+    top: 80px; /* Assuming header height */
+    left: 0;
+    height: calc(100vh - 80px);
+    width: 250px;
+    z-index: 50;
+    transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
+    box-shadow: ${({ isOpen }) => (isOpen ? '4px 0 10px rgba(0,0,0,0.1)' : 'none')};
+    display: flex;
+  }
+`;
+
+const MenuToggle = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: ${({ theme }) => theme.colors.brand.dark};
+  cursor: pointer;
+  margin-right: 1rem;
+
+  @media (max-width: 1024px) {
+    display: block;
   }
 `;
 
@@ -183,34 +206,35 @@ function LegislationDashboard() {
     { id: 'edu', name: 'Education & Vocational Training' },
   ];
 
+  // ... imports
+  import IssueReporter from '../components/IssueReporter';
+  import FacilityBooking from '../components/FacilityBooking';
+  import ProjectTracker from '../components/ProjectTracker';
+  import LeaderDirectory from '../components/LeaderDirectory';
+
+  // ... (Sidebar styled component updates were already done)
+
+  // ... inside LegislationDashboard function
   const [activeTab, setActiveTab] = useState('all');
   const [selectedInstrument, setSelectedInstrument] = useState(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  // Filter Logic (Client-side for demo smoothness)
-  // Note: Since we only seeded a few, strict filtering might show empty.
-  // We'll show all or basic filter for now.
-  const filteredInstruments = activeTab === 'all'
-    ? instruments
-    : instruments.filter(i => {
-      // Loose matching for demo purposes since docket names might vary in seed
-      const docketName = i.docket_name?.toLowerCase() || '';
-      if (activeTab === 'infra') return docketName.includes('roads') || docketName.includes('transport') || docketName.includes('infrastructure');
-      if (activeTab === 'health') return docketName.includes('health');
-      if (activeTab === 'edu') return docketName.includes('education');
-      return true;
-    });
+  // New State for View Mode ('legislation' or 'issues')
+  const [viewMode, setViewMode] = useState('legislation'); // 'legislation', 'issues', 'facilities', 'projects', 'leaders'
+
+  // ... filteredInstruments logic remains ...
 
   return (
     <DashboardContainer>
-      {/* SIDEBAR NAVIGATION */}
-      <Sidebar>
+      <Sidebar isOpen={isSidebarOpen}>
+        {/* ... Crucial Dockets ... */}
         <div>
           <SidebarTitle>Crucial Dockets</SidebarTitle>
           {crucialDockets.map(dock => (
             <NavItem
               key={dock.id}
-              active={activeTab === dock.id}
-              onClick={() => { setActiveTab(dock.id); setSelectedInstrument(null); }}
+              active={activeTab === dock.id && viewMode === 'legislation'}
+              onClick={() => { setActiveTab(dock.id); setViewMode('legislation'); setSelectedInstrument(null); setSidebarOpen(false); }}
             >
               {dock.name}
             </NavItem>
@@ -218,6 +242,40 @@ function LegislationDashboard() {
         </div>
 
         <div>
+          <SidebarTitle>Actions</SidebarTitle>
+          <NavItem
+            active={viewMode === 'issues'}
+            onClick={() => {
+              if (!user) { alert("Login required."); return; }
+              setViewMode('issues');
+              setSidebarOpen(false);
+            }}
+          >
+            🚧 Report an Issue
+          </NavItem>
+          <NavItem
+            active={viewMode === 'facilities'}
+            onClick={() => { setViewMode('facilities'); setSidebarOpen(false); }}
+          >
+            🏟 Book Facilities
+          </NavItem>
+          <NavItem
+            active={viewMode === 'projects'}
+            onClick={() => { setViewMode('projects'); setSidebarOpen(false); }}
+          >
+            🏗 Project Tracker
+          </NavItem>
+          <NavItem
+            active={viewMode === 'leaders'}
+            onClick={() => { setViewMode('leaders'); setSidebarOpen(false); }}
+          >
+            👔 Know Your Leaders
+          </NavItem>
+        </div>
+
+        <div>
+          {/* ... Your Space ... */}
+
           <SidebarTitle>Your Space</SidebarTitle>
           <NavItem onClick={() => user ? console.log('Nav to Submissions') : alert('Please login to view your submissions.')}>
             My Submissions
@@ -234,111 +292,142 @@ function LegislationDashboard() {
       {/* MAIN CONTENT AREA */}
       <MainContent>
         <HeaderSection>
-          <PageTitle>Legislative Tracker</PageTitle>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <MenuToggle onClick={() => setSidebarOpen(!isSidebarOpen)}>☰</MenuToggle>
+            <PageTitle>Legislative Tracker</PageTitle>
+          </div>
           <SubText>Participate in the decisions shaping your future.</SubText>
         </HeaderSection>
 
-        {/* Render List or Detail View */}
-        <AnimatePresence mode="wait">
-          {!selectedInstrument ? (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-            >
-              {/* LIST VIEW */}
-              <h3 style={{ marginBottom: '1.5rem', fontWeight: 'bold', color: '#556B2F' }}>
-                {activeTab === 'all' ? 'Active Opportunities' : `${crucialDockets.find(d => d.id === activeTab)?.name}`}
-              </h3>
+        {/* Render Views based on Mode */}
+        {viewMode === 'issues' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <IssueReporter onSuccess={() => console.log("Issue Reported")} />
+          </motion.div>
+        )}
 
-              {loading && <p>Loading legislation...</p>}
+        {viewMode === 'facilities' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <FacilityBooking />
+          </motion.div>
+        )}
 
-              <CardsGrid>
-                {filteredInstruments.map(item => (
-                  <InstrumentCard
-                    key={item.id}
-                    onClick={() => setSelectedInstrument(item)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <Badge>{item.category_name}</Badge>
+        {viewMode === 'projects' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <ProjectTracker />
+          </motion.div>
+        )}
+
+        {viewMode === 'leaders' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <LeaderDirectory />
+          </motion.div>
+        )}
+
+        {viewMode === 'legislation' && (
+          <AnimatePresence mode="wait">
+            {!selectedInstrument ? (
+              <motion.div
+                key="list"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                {/* LIST VIEW */}
+                <h3 style={{ marginBottom: '1.5rem', fontWeight: 'bold', color: '#556B2F' }}>
+                  {activeTab === 'all' ? 'Active Opportunities' : `${crucialDockets.find(d => d.id === activeTab)?.name}`}
+                </h3>
+
+                {loading && <p>Loading legislation...</p>}
+
+                <CardsGrid>
+                  {filteredInstruments.map(item => (
+                    <InstrumentCard
+                      key={item.id}
+                      onClick={() => setSelectedInstrument(item)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <Badge>{item.category_name}</Badge>
+                      </div>
+                      <h3>{item.title}</h3>
+                      <p style={{ fontSize: '0.9rem', color: '#666' }}>{item.docket_name}</p>
+
+                      <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                        <Badge type="deadline">
+                          Due: {new Date(item.participation_deadline).toLocaleDateString()}
+                        </Badge>
+                      </div>
+                    </InstrumentCard>
+                  ))}
+
+                  {instruments.length === 0 && !loading && (
+                    <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', background: 'white', borderRadius: '12px' }}>
+                      No active legislation found for this category.
                     </div>
-                    <h3>{item.title}</h3>
-                    <p style={{ fontSize: '0.9rem', color: '#666' }}>{item.docket_name}</p>
+                  )}
+                </CardsGrid>
 
-                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
-                      <Badge type="deadline">
-                        Due: {new Date(item.participation_deadline).toLocaleDateString()}
-                      </Badge>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="detail"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+              >
+                {/* DETAIL VIEW */}
+                <BackButton onClick={() => setSelectedInstrument(null)}>
+                  ← Back to List
+                </BackButton>
+
+                <DetailPanel>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <Badge>{selectedInstrument.category_name}</Badge>
+                      <h2>{selectedInstrument.title}</h2>
+                      <p style={{ fontSize: "1.1rem", color: "#556B2F", fontWeight: "bold" }}>
+                        {selectedInstrument.docket_name}
+                      </p>
                     </div>
-                  </InstrumentCard>
-                ))}
-
-                {instruments.length === 0 && !loading && (
-                  <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', background: 'white', borderRadius: '12px' }}>
-                    No active legislation found for this category.
+                    <Badge type="deadline">
+                      Action Required by: {new Date(selectedInstrument.participation_deadline).toLocaleDateString()}
+                    </Badge>
                   </div>
-                )}
-              </CardsGrid>
 
-            </motion.div>
-          ) : (
-            <motion.div
-              key="detail"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-            >
-              {/* DETAIL VIEW */}
-              <BackButton onClick={() => setSelectedInstrument(null)}>
-                ← Back to List
-              </BackButton>
-
-              <DetailPanel>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div>
-                    <Badge>{selectedInstrument.category_name}</Badge>
-                    <h2>{selectedInstrument.title}</h2>
-                    <p style={{ fontSize: "1.1rem", color: "#556B2F", fontWeight: "bold" }}>
-                      {selectedInstrument.docket_name}
-                    </p>
+                  <div style={{ margin: "2rem 0", lineHeight: "1.8", color: "#444" }}>
+                    <h4 style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>Executive Summary</h4>
+                    <p>{selectedInstrument.summary_text || "No summary provided. Please refer to the full text."}</p>
                   </div>
-                  <Badge type="deadline">
-                    Action Required by: {new Date(selectedInstrument.participation_deadline).toLocaleDateString()}
-                  </Badge>
-                </div>
 
-                <div style={{ margin: "2rem 0", lineHeight: "1.8", color: "#444" }}>
-                  <h4 style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>Executive Summary</h4>
-                  <p>{selectedInstrument.summary_text || "No summary provided. Please refer to the full text."}</p>
-                </div>
+                  <div style={{ display: "flex", gap: "1rem" }}>
+                    <button style={{ padding: "0.8rem 1.5rem", background: "#f0f0f0", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
+                      📄 Read Full Text
+                    </button>
+                  </div>
 
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <button style={{ padding: "0.8rem 1.5rem", background: "#f0f0f0", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
-                    📄 Read Full Text
-                  </button>
-                </div>
+                  {/* FEEDBACK FORM INTEGRATION */}
+                  <div style={{ marginTop: "3rem" }}>
+                    <FeedbackForm
+                      instrumentId={selectedInstrument.id}
+                      instrumentTitle={selectedInstrument.title}
+                    />
+                  </div>
 
-                {/* FEEDBACK FORM INTEGRATION */}
-                <div style={{ marginTop: "3rem" }}>
-                  <FeedbackForm
-                    instrumentId={selectedInstrument.id}
-                    instrumentTitle={selectedInstrument.title}
-                  />
-                </div>
-
-              </DetailPanel>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                </DetailPanel>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
 
       </MainContent>
 
+
+
       {/* RIGHT SIDEBAR (NEWS) */}
       <NewsFeed />
-    </DashboardContainer>
+    </DashboardContainer >
   );
 }
 

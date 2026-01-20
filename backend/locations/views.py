@@ -1,6 +1,7 @@
 from rest_framework import generics
-from .models import County, Constituency, Ward
-from .serializers import CountySerializer, ConstituencySerializer, WardSerializer
+from .models import County, Constituency, Ward, Official
+from .serializers import CountySerializer, ConstituencySerializer, WardSerializer, OfficialSerializer
+from django.db import models
 
 # 1. Get All Counties (Step 1 of Dropdown)
 class CountyListAPI(generics.ListAPIView):
@@ -26,3 +27,29 @@ class WardListAPI(generics.ListAPIView):
         if constituency_id:
             return Ward.objects.filter(constituency_id=constituency_id)
         return Ward.objects.none()
+
+class OfficialListAPI(generics.ListAPIView):
+    serializer_class = OfficialSerializer
+
+    def get_queryset(self):
+        queryset = Official.objects.all()
+        ward_id = self.request.query_params.get('ward_id')
+        constituency_id = self.request.query_params.get('constituency_id')
+        county_id = self.request.query_params.get('county_id')
+
+        if ward_id:
+            # Get MCA for this ward + MP for parent constituency + Governor/Senator for parent county
+            # Ideally we filter by specific jurisdiction logic, but simpler approach:
+            queryset = queryset.filter(models.Q(ward_id=ward_id) | models.Q(ward__isnull=True)) 
+            # This is tricky without complex logic. Let's simplify: client sends specific jurisdiction IDs.
+            pass
+        
+        # Simple exact match filters
+        if ward_id:
+            queryset = queryset.filter(ward_id=ward_id)
+        if constituency_id:
+            queryset = queryset.filter(constituency_id=constituency_id)
+        if county_id:
+            queryset = queryset.filter(county_id=county_id)
+            
+        return queryset
