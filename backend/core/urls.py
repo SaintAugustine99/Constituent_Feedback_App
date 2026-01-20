@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/issues/', include('issues.urls')),
     path('api/facilities/', include('facilities.urls')),
     path('api/projects/', include('projects.urls')),
+    path('api/locations/', include('locations.urls')),  # For officials endpoint
 ]
 
 # Serve media files in development

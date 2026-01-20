@@ -131,10 +131,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # CORS CONFIGURATION
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:5173 http://localhost:3000").split(' ')
-# Allow all for now if strict config fails, but encouraged to set env var
-if os.environ.get('CORS_ALLOW_ALL', 'False') == 'True':
-    CORS_ALLOW_ALL_ORIGINS = True
+# Set CORS_ALLOWED_ORIGINS env var on Render to your Vercel domain
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:5173 http://localhost:3000 https://jamii-platform.vercel.app").split(' ')
+# Fallback to allow all origins if env var not properly set (for debugging)
+CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL', 'True') == 'True'
 
 # REST FRAMEWORK CONFIG
 REST_FRAMEWORK = {
