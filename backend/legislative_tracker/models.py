@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from locations.models import Constituency, Ward
 
 class Docket(models.Model):
     """
@@ -94,19 +95,27 @@ class PublicFeedback(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True) # Optional: Allow anonymous?
     
     # The actual feedback
-    full_name = models.CharField(max_length=150) # Important for memorandum generation
-    constituency = models.CharField(max_length=150, blank=True) # Vital for segmentation
+    full_name = models.CharField(max_length=150)
+    constituency = models.CharField(max_length=150, blank=True)
     ward = models.CharField(max_length=150, blank=True)
-    
+
+    # Structured location references
+    constituency_ref = models.ForeignKey(Constituency, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedback')
+    ward_ref = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, related_name='feedback')
+
     position = models.CharField(max_length=20, choices=[('SUPPORT', 'Support'), ('OPPOSE', 'Oppose'), ('AMEND', 'Propose Amendments')])
     comments = models.TextField()
-    
+
+    # Amendment-specific fields
+    target_clause = models.CharField(max_length=200, blank=True, help_text="Which clause/section to amend")
+    proposed_alternative = models.TextField(blank=True, help_text="Proposed alternative text")
+
     # Evidence / Multimedia
     image_evidence = models.ImageField(upload_to='feedback_evidence/', blank=True, null=True, help_text="Upload photos (e.g. current state of road for CIDP)")
-    
+
     # Meta
     submitted_at = models.DateTimeField(auto_now_add=True)
-    
+
     # For automated analysis later
     is_verified = models.BooleanField(default=False) 
 

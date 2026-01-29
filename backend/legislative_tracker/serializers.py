@@ -34,4 +34,4 @@ class PublicFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = PublicFeedback
         fields = '__all__'
-        read_only_fields = ['submitted_at', 'is_verified']
+        read_only_fields = ['submitted_at', 'is_verified', 'user', 'constituency_ref', 'ward_ref']

@@ -1,15 +1,17 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from .models import County, Constituency, Ward, Official
 from .serializers import CountySerializer, ConstituencySerializer, WardSerializer, OfficialSerializer
 from django.db import models
 
 # 1. Get All Counties (Step 1 of Dropdown)
 class CountyListAPI(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = County.objects.all()
     serializer_class = CountySerializer
 
 # 2. Get Constituencies (Filtered by County)
 class ConstituencyListAPI(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     serializer_class = ConstituencySerializer
 
     def get_queryset(self):
@@ -20,6 +22,7 @@ class ConstituencyListAPI(generics.ListAPIView):
 
 # 3. Get Wards (Filtered by Constituency)
 class WardListAPI(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     serializer_class = WardSerializer
 
     def get_queryset(self):
@@ -29,6 +32,7 @@ class WardListAPI(generics.ListAPIView):
         return Ward.objects.none()
 
 class OfficialListAPI(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     serializer_class = OfficialSerializer
 
     def get_queryset(self):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import County, Constituency, Ward
+from .models import County, Constituency, Ward, Official
 
 @admin.register(County)
 class CountyAdmin(admin.ModelAdmin):
@@ -25,3 +25,10 @@ class WardAdmin(admin.ModelAdmin):
         return obj.constituency.county.name
     get_county.short_description = 'County'
     get_county.admin_order_field = 'constituency__county'
+
+@admin.register(Official)
+class OfficialAdmin(admin.ModelAdmin):
+    list_display = ('name', 'title', 'ward', 'constituency', 'county', 'phone', 'email')
+    list_filter = ('title', 'county')
+    search_fields = ('name', 'email', 'phone')
+    autocomplete_fields = ['ward', 'constituency', 'county']

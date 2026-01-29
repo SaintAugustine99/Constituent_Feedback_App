@@ -9,6 +9,30 @@ const api = axios.create({
   },
 });
 
+// Request interceptor: attach token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('jamii_token');
+  if (token) {
+    config.headers.Authorization = `Token ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor: handle 401
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('jamii_token');
+      localStorage.removeItem('jamii_user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const locationService = {
   // 1. Get all Counties
   getCounties: async () => {
@@ -96,6 +120,31 @@ export const officialService = {
     const response = await api.get('/locations/officials/', { params: filters });
     return response.data;
   }
+};
+
+export const legislationService = {
+  getInstruments: async (params = {}) => {
+    const response = await api.get('/legislation/instruments/', { params });
+    return response.data;
+  },
+  getActiveInstruments: async () => {
+    const response = await api.get('/legislation/instruments/active/');
+    return response.data;
+  },
+  getInstrumentDetail: async (id) => {
+    const response = await api.get(`/legislation/instruments/${id}/`);
+    return response.data;
+  },
+  getInstrumentStats: async (id) => {
+    const response = await api.get(`/legislation/instruments/${id}/stats/`);
+    return response.data;
+  },
+  submitFeedback: async (formData) => {
+    const response = await api.post('/legislation/feedback/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
 };
 
 export default api;

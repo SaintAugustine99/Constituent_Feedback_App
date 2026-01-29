@@ -7,9 +7,16 @@ import { AuthProvider } from './context/AuthContext';
 
 // Components
 import Header from './components/Header';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Pages
 import Register from './pages/Register';
 import Login from './pages/Login';
-import LegislationDashboard from './pages/LegislationDashboard';
+import LegislationPage from './pages/LegislationPage';
+import IssuesPage from './pages/IssuesPage';
+import FacilitiesPage from './pages/FacilitiesPage';
+import ProjectsPage from './pages/ProjectsPage';
+import LeadersPage from './pages/LeadersPage';
 import Community from './pages/Community';
 
 function App() {
@@ -25,12 +32,18 @@ function App() {
             toggleTheme={() => setIsDarkMode(!isDarkMode)}
           />
 
-          <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<LegislationDashboard />} />
-            <Route path="/community" element={<Community />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<LegislationPage />} />
+              <Route path="/issues" element={<IssuesPage />} />
+              <Route path="/facilities" element={<FacilitiesPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/leaders" element={<LeadersPage />} />
+              <Route path="/community" element={<Community />} />
+            </Routes>
+          </ErrorBoundary>
 
         </Router>
       </ThemeProvider>

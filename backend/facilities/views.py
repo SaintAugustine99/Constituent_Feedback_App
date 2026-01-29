@@ -4,6 +4,7 @@ from .serializers import FacilitySerializer, BookingSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 class FacilityList(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

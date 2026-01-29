@@ -4,6 +4,7 @@ from .models import Project, ProjectUpdate
 from .serializers import ProjectSerializer, ProjectUpdateSerializer
 
 class ProjectList(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -11,6 +12,7 @@ class ProjectList(generics.ListAPIView):
     search_fields = ['name', 'contractor_name']
 
 class ProjectDetail(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 

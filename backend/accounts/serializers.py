@@ -1,14 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password as django_validate_password
 from locations.models import Ward, Constituency, County
 
 User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    
+    password = serializers.CharField(write_only=True, min_length=8)
+
     # We accept IDs for the location, but we might want to validate them
     ward_id = serializers.IntegerField(required=True)
+
+    def validate_password(self, value):
+        django_validate_password(value)
+        return value
 
     class Meta:
         model = User
