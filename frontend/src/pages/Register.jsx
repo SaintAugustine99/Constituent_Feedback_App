@@ -6,13 +6,15 @@ import { locationService, authService } from '../services/api';
 
 // --- STYLES ---
 const PageWrapper = styled.div`
-  min-height: calc(100vh - 80px); /* Account for header */
+  min-height: calc(100vh - 80px);
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.bg.primary};
   padding: 2rem 1rem;
-  
+  position: relative;
+  z-index: 1;
+
   @media (max-width: 600px) {
     padding: 1rem;
     align-items: flex-start;

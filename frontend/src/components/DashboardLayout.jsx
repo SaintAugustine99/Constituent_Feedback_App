@@ -190,7 +190,7 @@ function DashboardLayout({ children, title, subtitle }) {
         <div>
           <SidebarTitle>Actions</SidebarTitle>
           <NavItem active={isActive('/issues')} onClick={() => {
-            if (!user) { alert("Login required."); return; }
+            if (!user) { navTo('/login'); return; }
             navTo('/issues');
           }}>
             Report an Issue
@@ -211,13 +211,13 @@ function DashboardLayout({ children, title, subtitle }) {
 
         <div>
           <SidebarTitle>Your Space</SidebarTitle>
-          <NavItem onClick={() => user ? console.log('Nav to Submissions') : alert('Please login to view your submissions.')}>
+          <NavItem onClick={() => !user && navTo('/login')}>
             My Submissions
           </NavItem>
-          <NavItem onClick={() => user ? console.log('Nav to Saved') : alert('Please login to save bills.')}>
+          <NavItem onClick={() => !user && navTo('/login')}>
             Saved Bills
           </NavItem>
-          <NavItem onClick={() => user ? console.log('Nav to Profile') : alert('Login to access profile settings.')}>
+          <NavItem onClick={() => !user && navTo('/login')}>
             Profile Settings
           </NavItem>
         </div>
