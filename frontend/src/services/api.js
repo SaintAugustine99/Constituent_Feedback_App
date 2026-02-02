@@ -147,4 +147,15 @@ export const legislationService = {
   },
 };
 
+export const newsService = {
+  getArticles: async () => {
+    const response = await api.get('/news/articles/');
+    return response.data;
+  },
+  getResources: async () => {
+    const response = await api.get('/news/resources/');
+    return response.data;
+  },
+};
+
 export default api;

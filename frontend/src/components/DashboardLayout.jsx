@@ -204,6 +204,9 @@ function DashboardLayout({ children, title, subtitle }) {
           <NavItem active={isActive('/leaders')} onClick={() => navTo('/leaders')}>
             Know Your Leaders
           </NavItem>
+          <NavItem active={isActive('/news')} onClick={() => navTo('/news')}>
+            News &amp; Resources
+          </NavItem>
         </div>
 
         <div>

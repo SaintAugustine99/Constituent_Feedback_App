@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve
 from locations.views import CountyListAPI, ConstituencyListAPI, WardListAPI
 from accounts.views import RegisterView, LoginView
 
@@ -23,8 +23,11 @@ urlpatterns = [
     path('api/facilities/', include('facilities.urls')),
     path('api/projects/', include('projects.urls')),
     path('api/locations/', include('locations.urls')),  # For officials endpoint
+    path('api/news/', include('news.urls')),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files in all environments (demo deployment)
+# For production at scale, use S3/CloudFront instead
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]

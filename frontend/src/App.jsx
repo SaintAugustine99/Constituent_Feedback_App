@@ -18,6 +18,7 @@ import FacilitiesPage from './pages/FacilitiesPage';
 import ProjectsPage from './pages/ProjectsPage';
 import LeadersPage from './pages/LeadersPage';
 import Community from './pages/Community';
+import NewsResourcesPage from './pages/NewsResourcesPage';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -42,6 +43,7 @@ function App() {
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/leaders" element={<LeadersPage />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/news" element={<NewsResourcesPage />} />
             </Routes>
           </ErrorBoundary>
 

@@ -27,6 +27,8 @@ if not DEBUG and SECRET_KEY.startswith('django-insecure'):
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
 
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(' ')
+
 
 # Application definition
 
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     'issues',
     'facilities',
     'projects',
+    'news',
 ]
 
 MIDDLEWARE = [
@@ -156,4 +159,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Media Files (Uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
