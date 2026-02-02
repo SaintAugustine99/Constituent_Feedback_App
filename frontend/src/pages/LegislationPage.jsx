@@ -6,6 +6,7 @@ import FeedbackForm from '../components/FeedbackForm';
 import FeedbackStats from '../components/FeedbackStats';
 import DashboardLayout from '../components/DashboardLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useAssistant } from '../context/AssistantContext';
 
 const CardsGrid = styled.div`
   display: grid;
@@ -103,6 +104,12 @@ function LegislationPage() {
   const { data: instruments, loading } = useLegislation('instruments', { activeOnly: true });
   const [selectedInstrument, setSelectedInstrument] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const { setActiveInstrumentId } = useAssistant();
+
+  const selectInstrument = (item) => {
+    setSelectedInstrument(item);
+    setActiveInstrumentId(item ? item.id : null);
+  };
 
   const filteredInstruments = searchQuery
     ? instruments.filter(i =>
@@ -139,7 +146,7 @@ function LegislationPage() {
               {filteredInstruments.map(item => (
                 <InstrumentCard
                   key={item.id}
-                  onClick={() => setSelectedInstrument(item)}
+                  onClick={() => selectInstrument(item)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -170,7 +177,7 @@ function LegislationPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
           >
-            <BackButton onClick={() => setSelectedInstrument(null)}>
+            <BackButton onClick={() => selectInstrument(null)}>
               &larr; Back to List
             </BackButton>
 

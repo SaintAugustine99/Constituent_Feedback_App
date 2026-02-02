@@ -207,6 +207,9 @@ function DashboardLayout({ children, title, subtitle }) {
           <NavItem active={isActive('/news')} onClick={() => navTo('/news')}>
             News &amp; Resources
           </NavItem>
+          <NavItem active={isActive('/assistant')} onClick={() => navTo('/assistant')}>
+            Jamii Assistant
+          </NavItem>
         </div>
 
         <div>

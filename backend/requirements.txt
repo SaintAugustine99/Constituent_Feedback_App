@@ -19,5 +19,8 @@ Pillow>=10.0
 # HTTP client
 requests>=2.31
 
+# AI
+google-generativeai>=0.3
+
 # Utils
 python-dotenv>=1.0

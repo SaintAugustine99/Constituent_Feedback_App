@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/projects/', include('projects.urls')),
     path('api/locations/', include('locations.urls')),  # For officials endpoint
     path('api/news/', include('news.urls')),
+    path('api/assistant/', include('assistant.urls')),
 ]
 
 # Serve media files in all environments (demo deployment)

@@ -147,6 +147,15 @@ export const legislationService = {
   },
 };
 
+export const assistantService = {
+  chat: async (message, instrumentId = null) => {
+    const payload = { message };
+    if (instrumentId) payload.instrument_id = instrumentId;
+    const response = await api.post('/assistant/chat/', payload);
+    return response.data;
+  },
+};
+
 export const newsService = {
   getArticles: async () => {
     const response = await api.get('/news/articles/');
