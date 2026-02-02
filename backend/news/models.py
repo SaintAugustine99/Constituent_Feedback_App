@@ -26,7 +26,7 @@ class GovernmentResource(models.Model):
 class NewsArticle(models.Model):
     title = models.CharField(max_length=500)
     description = models.TextField(blank=True)
-    source_name = models.CharField(max_length=200)
+    source_name = models.CharField(max_length=500)
     url = models.URLField(unique=True)
     image_url = models.URLField(blank=True)
     published_at = models.DateTimeField()

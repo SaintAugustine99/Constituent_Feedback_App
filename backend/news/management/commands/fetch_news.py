@@ -73,7 +73,7 @@ class Command(BaseCommand):
                 defaults={
                     'title': (article.get('title') or '')[:500],
                     'description': article.get('description') or '',
-                    'source_name': (article.get('source', {}) or {}).get('name', 'Unknown'),
+                    'source_name': ((article.get('source', {}) or {}).get('name', 'Unknown') or 'Unknown')[:500],
                     'image_url': article.get('urlToImage') or '',
                     'published_at': published_at,
                 },
